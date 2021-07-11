@@ -1,0 +1,59 @@
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <script src="wasm_exec.js"></script>
+    <script>
+        if (!WebAssembly.instantiateStreaming) { // polyfill
+            WebAssembly.instantiateStreaming = async (resp, importObject) => {
+                const source = await (await resp).arrayBuffer();
+                return await WebAssembly.instantiate(source, importObject);
+            };
+        }
+        const go = new Go();
+        WebAssembly.instantiateStreaming(fetch("wasm/pdf.wasm"), go.importObject).then((result) => {
+            go.run(result.instance);
+        });
+    </script>
+</head>
+
+<body>
+    <input type="file" accept=".pdf" />
+    <div id="result"><a id="link" target="_blank" download="file.txt">Download</a></div>
+</body>
+<script>
+    document.querySelector('input').addEventListener('change', async (event) => {
+        const buffer = await event.target.files[0].arrayBuffer();
+
+        // Add a suffix to the soon-to-be-downloaded file
+        const name = event.target.files[0].name ?
+            event.target.files[0].name.replace(new RegExp(".pdf" + '$'), '-decrypted.pdf') :
+            "file.txt";
+
+        var file = new Uint8Array(buffer);
+
+        var data = [];
+        try {
+            data.push(await decryptPDF(file));
+        } catch (err) {
+            console.error('caught error from WASM:', err);
+            return;
+        }
+
+        var properties = { type: 'application/pdf' }; // Specify the file's mime-type.
+        try {
+            // Specify the filename using the File constructor, but ...
+            const nameInDownload = name;
+            file = new File(data, name, properties);
+        } catch (e) {
+            // ... fall back to the Blob constructor if that isn't supported.
+            file = new Blob(data, properties);
+        }
+
+        var url = URL.createObjectURL(file);
+        document.getElementById('link').href = url;
+        document.getElementById('link').download = name;
+    }, false)
+</script>
+
+</html>
