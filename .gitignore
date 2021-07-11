@@ -1,0 +1,3 @@
+cmd/server/assets/**/*
+
+!cmd/server/assets/index.html
