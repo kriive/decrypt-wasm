@@ -1,3 +1,5 @@
 cmd/server/assets/**/*
 
 !cmd/server/assets/index.html
+!cmd/server/assets/wasm
+!cmd/server/assets/wasm/.gitkeep
