@@ -1,0 +1,22 @@
+name: Build and Deploy
+on: [push]
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2.3.1
+
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '^1.16' # The Go version to download (if necessary) and use.
+        run: |
+        GOOS=js GOARCH=wasm go build -o ./cmd/server/assets/wasm/pdf.wasm cmd/wasm/main.go
+        cp "$(go env GOROOT)/misc/wasm/wasm_exec.js" ./cmd/server/assets/
+
+      - name: Deploy
+        uses: JamesIves/github-pages-deploy-action@4.1.4
+        with:
+          branch: gh-pages
+          folder: cmd/server/assets
