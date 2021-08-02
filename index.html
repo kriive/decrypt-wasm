@@ -16,7 +16,6 @@
         });
     </script>
 </head>
-
 <body>
     <input type="file" accept=".pdf" />
     <div id="result"><a id="link" target="_blank" download="file.txt">Download</a></div>
@@ -28,7 +27,7 @@
         // Add a suffix to the soon-to-be-downloaded file
         const name = event.target.files[0].name ?
             event.target.files[0].name.replace(new RegExp(".pdf" + '$'), '-decrypted.pdf') :
-            "file.txt";
+            "file.pdf";
 
         var file = new Uint8Array(buffer);
 
@@ -52,8 +51,8 @@
 
         var url = URL.createObjectURL(file);
         document.getElementById('link').href = url;
+	// Change the download name to our *-decrypted.pdf name
         document.getElementById('link').download = name;
     }, false)
 </script>
-
 </html>
